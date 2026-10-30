@@ -50,9 +50,11 @@ def main():
     for h in ("2130706433", "0x7f.1", "127.1", "0177.0.0.1"):
         r = Rules(allow_file="/nonexistent", deny_list=LAN)
         try:
-            assert denied(r, h)
-        except socket.gaierror:
-            pass  # not resolvable on this OS, also fine
+            address = r.resolve(h, 443)
+            # Literal syntax varies by OS; an accepted result must not be loopback.
+            assert not ip.ip_address(address).is_loopback, (h, address)
+        except (Denied, socket.gaierror):
+            pass  # blocked or not resolvable on this OS
 
     assert rules(fake()).host_allowed("anything.com")                                        # no allow.txt entries: open
     r = rules(fake(), "# comment\npypi.org\nnpmjs.org\n")
