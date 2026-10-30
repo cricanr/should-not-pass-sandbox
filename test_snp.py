@@ -56,13 +56,15 @@ def test_start_retries_while_locked():
 def test_dry_run_writes_nothing():
     with tempfile.TemporaryDirectory() as d, mock.patch.object(snp, "STATE", Path(d) / ".snp"), mock.patch.object(snp, "DRY", True), \
             mock.patch.object(snp, "vbm", return_value=""), mock.patch.object(snp, "network", return_value="vboxnet0"), \
-            mock.patch.object(snp, "find_iso", return_value=Path("x.iso")), mock.patch("builtins.print"):
+            mock.patch.object(snp, "find_iso", return_value=Path("x.iso")), \
+            mock.patch.object(snp.platform, "machine", return_value="AMD64"), mock.patch("builtins.print"):
         snp.setup(mock.Mock(iso=None, ram=4096, cpus=2, password='dev', baseline=False))
         assert not (Path(d) / ".snp").exists()  # no password, key or venv in a dry run
 
 
 def test_setup_refuses_existing_vm():
-    with mock.patch.object(snp, "vbm", return_value=f'"{snp.VM}" {{uuid}}\n'):
+    with mock.patch.object(snp, "vbm", return_value=f'"{snp.VM}" {{uuid}}\n'), \
+            mock.patch.object(snp.platform, "machine", return_value="AMD64"):
         exits(lambda: snp.setup(mock.Mock(iso=None, ram=4096, cpus=2, password='dev', baseline=False)), "already exists")
 
 

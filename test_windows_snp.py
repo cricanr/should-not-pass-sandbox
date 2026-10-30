@@ -229,7 +229,7 @@ class ProxyOwnershipTests(unittest.TestCase):
 class PrivateStateTests(unittest.TestCase):
     def test_drive_home_source_ancestor_and_git_checkout_are_rejected_before_changes(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             source = root / "projects" / "source"
             source.mkdir(parents=True)
             home = root / "home"
@@ -309,7 +309,7 @@ class RuntimeCommandTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
-        self.state = Path(self.directory.name) / "sandbox state"
+        self.state = Path(self.directory.name).resolve() / "sandbox state"
         for attribute, value in (("STATE", self.state), ("VM", "ubuntu-dev"), ("DRY", False), ("WIN", True)):
             mock = patch.object(snp, attribute, value)
             mock.start()
